@@ -2,54 +2,56 @@ package ui;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class MainFrame extends JFrame {
     public MainFrame() {
-        setTitle("Campus Job Finder");
-        setSize(400, 300);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
+        UIStyles.prepareFrame(this, "CampusHire | On-Campus Jobs", 720, 480);
 
-        JPanel panel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
+        JPanel root = UIStyles.pagePanel();
+        JPanel hero = UIStyles.card();
+        hero.setLayout(new BoxLayout(hero, BoxLayout.Y_AXIS));
 
-        JLabel titleLabel = new JLabel("Welcome to Campus Job Finder");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.gridwidth = 2;
-        panel.add(titleLabel, gbc);
+        JLabel brand = new JLabel("CAMPUSHIRE");
+        brand.setFont(new Font("SansSerif", Font.BOLD, 14));
+        brand.setForeground(UIStyles.BLUE);
+        brand.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JButton studentLoginBtn = new JButton("Student Login");
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.gridwidth = 1;
-        panel.add(studentLoginBtn, gbc);
+        JLabel title = UIStyles.title("Find opportunities on campus.");
+        title.setAlignmentX(Component.LEFT_ALIGNMENT);
+        JLabel subtitle = UIStyles.subtitle("A simple, professional workspace for students and campus employers.");
+        subtitle.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JButton adminLoginBtn = new JButton("Admin Login");
-        gbc.gridx = 1;
-        gbc.gridy = 1;
-        panel.add(adminLoginBtn, gbc);
+        hero.add(brand);
+        hero.add(Box.createVerticalStrut(10));
+        hero.add(title);
+        hero.add(Box.createVerticalStrut(8));
+        hero.add(subtitle);
+        hero.add(Box.createVerticalStrut(28));
 
-        studentLoginBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new ui.StudentLoginFrame().setVisible(true);
-                dispose();
-            }
+        JPanel actions = new JPanel(new GridLayout(1, 2, 14, 0));
+        actions.setOpaque(false);
+        JButton studentLoginBtn = UIStyles.primaryButton("Student Portal");
+        JButton adminLoginBtn = UIStyles.secondaryButton("Employer / Admin Portal");
+        actions.add(studentLoginBtn);
+        actions.add(adminLoginBtn);
+        hero.add(actions);
+
+        JPanel footer = new JPanel(new BorderLayout());
+        footer.setOpaque(false);
+        JLabel footerText = UIStyles.subtitle("CampusHire • Student employment management system");
+        footer.add(footerText, BorderLayout.WEST);
+
+        studentLoginBtn.addActionListener(e -> {
+            new StudentLoginFrame().setVisible(true);
+            dispose();
+        });
+        adminLoginBtn.addActionListener(e -> {
+            new AdminLoginFrame().setVisible(true);
+            dispose();
         });
 
-        adminLoginBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new ui.AdminLoginFrame().setVisible(true);
-                dispose();
-            }
-        });
-
-        add(panel);
+        root.add(hero, BorderLayout.CENTER);
+        root.add(footer, BorderLayout.SOUTH);
+        add(root);
     }
 }
