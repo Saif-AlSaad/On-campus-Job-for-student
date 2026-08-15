@@ -3,98 +3,69 @@ package ui;
 import models.Student;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class StudentDashboardFrame extends JFrame {
-    private Student student;
+    private final Student student;
 
     public StudentDashboardFrame(Student student) {
         this.student = student;
-        setTitle("Student Dashboard - " + student.getName());
-        setSize(500, 400);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);
+        UIStyles.prepareFrame(this, "CampusHire | Student Dashboard", 820, 560);
 
-        JPanel panel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
+        JPanel root = UIStyles.pagePanel();
+        JPanel header = new JPanel(new BorderLayout());
+        header.setOpaque(false);
+        JPanel heading = new JPanel();
+        heading.setLayout(new BoxLayout(heading, BoxLayout.Y_AXIS));
+        heading.setOpaque(false);
+        JLabel title = UIStyles.title("Student Dashboard");
+        JLabel subtitle = UIStyles.subtitle("Welcome back, " + student.getName() + ". Manage your campus job search from here.");
+        heading.add(title);
+        heading.add(Box.createVerticalStrut(6));
+        heading.add(subtitle);
+        header.add(heading, BorderLayout.WEST);
 
-        JLabel welcomeLabel = new JLabel("Welcome, " + student.getName() + "!");
-        welcomeLabel.setFont(new Font("Arial", Font.BOLD, 16));
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.gridwidth = 2;
-        panel.add(welcomeLabel, gbc);
+        JPanel profile = UIStyles.card();
+        profile.setLayout(new BoxLayout(profile, BoxLayout.Y_AXIS));
+        JLabel profileTitle = UIStyles.label(student.getMajor());
+        JLabel profileMeta = UIStyles.subtitle(student.getStudentId() + " • " + student.getEmail());
+        profile.add(profileTitle);
+        profile.add(Box.createVerticalStrut(5));
+        profile.add(profileMeta);
+        header.add(profile, BorderLayout.EAST);
 
-        JButton viewJobsBtn = new JButton("View Available Jobs");
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.gridwidth = 1;
-        panel.add(viewJobsBtn, gbc);
+        JPanel cards = new JPanel(new GridLayout(2, 2, 16, 16));
+        cards.setOpaque(false);
+        cards.add(actionCard("Find Jobs", "Browse currently open campus positions.", "Browse Jobs", UIStyles.BLUE, () -> new ViewJobsFrame(student, false).setVisible(true)));
+        cards.add(actionCard("Applications", "Track your submitted applications and status.", "My Applications", UIStyles.SUCCESS, () -> new ViewApplicationsFrame(student, false).setVisible(true)));
+        cards.add(actionCard("Profile", "Keep your contact details and skills up to date.", "Update Profile", UIStyles.NAVY, () -> {
+            new UpdateProfileFrame(student).setVisible(true);
+            dispose();
+        }));
+        cards.add(actionCard("Session", "Return to the secure application entry point.", "Logout", UIStyles.DANGER, () -> {
+            new MainFrame().setVisible(true);
+            dispose();
+        }));
 
-        JButton myApplicationsBtn = new JButton("My Applications");
-        gbc.gridx = 1;
-        gbc.gridy = 1;
-        panel.add(myApplicationsBtn, gbc);
+        root.add(header, BorderLayout.NORTH);
+        root.add(cards, BorderLayout.CENTER);
+        add(root);
+    }
 
-        JButton updateProfileBtn = new JButton("Update Profile");
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        panel.add(updateProfileBtn, gbc);
-
-        JButton logoutBtn = new JButton("Logout");
-        gbc.gridx = 1;
-        gbc.gridy = 2;
-        panel.add(logoutBtn, gbc);
-
-        viewJobsBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new ui.ViewJobsFrame(student, false).setVisible(true);
-            }
-        });
-
-        myApplicationsBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Implement view applications functionality
-                JOptionPane.showMessageDialog(StudentDashboardFrame.this,
-                        "This feature would show your job applications.");
-            }
-        });
-
-        updateProfileBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Implement update profile functionality
-                JOptionPane.showMessageDialog(StudentDashboardFrame.this,
-                        "This feature would allow you to update your profile.");
-            }
-        });
-
-        logoutBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new ui.MainFrame().setVisible(true);
-                dispose();
-            }
-        });
-        // In the StudentDashboardFrame constructor, update the myApplicationsBtn action listener:
-        myApplicationsBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new ViewApplicationsFrame(student, false).setVisible(true);
-            }
-        });
-        updateProfileBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new UpdateProfileFrame(student).setVisible(true);
-                dispose();
-            }
-        });
-
-        add(panel);
+    private JPanel actionCard(String title, String description, String buttonText, Color accent, Runnable action) {
+        JPanel card = UIStyles.card();
+        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
+        JLabel titleLabel = UIStyles.title(title);
+        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 19));
+        JLabel descriptionLabel = UIStyles.subtitle("<html><div style='width:260px'>" + description + "</div></html>");
+        JButton button = UIStyles.primaryButton(buttonText);
+        button.setBackground(accent);
+        button.setAlignmentX(Component.LEFT_ALIGNMENT);
+        button.addActionListener(e -> action.run());
+        card.add(titleLabel);
+        card.add(Box.createVerticalStrut(10));
+        card.add(descriptionLabel);
+        card.add(Box.createVerticalGlue());
+        card.add(button);
+        return card;
     }
 }
