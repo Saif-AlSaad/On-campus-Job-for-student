@@ -1,86 +1,100 @@
 package ui;
 
+import models.Student;
 import services.StudentService;
+
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class StudentLoginFrame extends JFrame {
+    private final JTextField studentIdField = new JTextField(15);
+    private final JPasswordField passwordField = new JPasswordField(15);
+
     public StudentLoginFrame() {
         setTitle("Student Login");
-        setSize(350, 250);
+        setSize(400, 270);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
+        setResizable(false);
 
         JPanel panel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        JLabel titleLabel = new JLabel("Student Login");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        JLabel titleLabel = new JLabel("Student Login", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridwidth = 2;
         panel.add(titleLabel, gbc);
 
-        JLabel studentIdLabel = new JLabel("Student ID:");
+        gbc.gridwidth = 1;
         gbc.gridx = 0;
         gbc.gridy = 1;
-        gbc.gridwidth = 1;
-        panel.add(studentIdLabel, gbc);
+        panel.add(new JLabel("Student ID:"), gbc);
 
-        JTextField studentIdField = new JTextField(15);
         gbc.gridx = 1;
-        gbc.gridy = 1;
         panel.add(studentIdField, gbc);
 
-        JLabel passwordLabel = new JLabel("Password:");
         gbc.gridx = 0;
         gbc.gridy = 2;
-        panel.add(passwordLabel, gbc);
+        panel.add(new JLabel("Password:"), gbc);
 
-        JPasswordField passwordField = new JPasswordField(15);
         gbc.gridx = 1;
-        gbc.gridy = 2;
         panel.add(passwordField, gbc);
 
-        JButton loginBtn = new JButton("Login");
+        JButton loginButton = new JButton("Login");
+        JButton backButton = new JButton("Back to Main");
+
         gbc.gridx = 0;
         gbc.gridy = 3;
         gbc.gridwidth = 2;
-        panel.add(loginBtn, gbc);
+        panel.add(loginButton, gbc);
 
-        JButton backBtn = new JButton("Back to Main");
-        gbc.gridx = 0;
         gbc.gridy = 4;
-        panel.add(backBtn, gbc);
+        panel.add(backButton, gbc);
 
-        loginBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String studentId = studentIdField.getText();
-                String password = new String(passwordField.getPassword());
-
-                StudentService studentService = StudentService.getInstance();
-                if (studentService.getStudentByCredentials(studentId, password) != null) {
-                    JOptionPane.showMessageDialog(StudentLoginFrame.this, "Login successful!");
-                    new ui.StudentDashboardFrame(studentService.getStudentByCredentials(studentId, password)).setVisible(true);
-                    dispose();
-                } else {
-                    JOptionPane.showMessageDialog(StudentLoginFrame.this, "Invalid credentials!", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        });
-
-        backBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new ui.MainFrame().setVisible(true);
-                dispose();
-            }
-        });
+        loginButton.addActionListener(e -> authenticate());
+        passwordField.addActionListener(e -> authenticate());
+        backButton.addActionListener(e -> returnToMain());
 
         add(panel);
+    }
+
+    private void authenticate() {
+        String studentId = studentIdField.getText().trim();
+        String password = new String(passwordField.getPassword());
+
+        if (studentId.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Please enter both student ID and password.",
+                    "Validation Error",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        StudentService studentService = StudentService.getInstance();
+        Student student = studentService.getStudentByCredentials(studentId, password);
+
+        if (student == null) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Invalid student ID or password.",
+                    "Login Failed",
+                    JOptionPane.ERROR_MESSAGE);
+            passwordField.setText("");
+            return;
+        }
+
+        JOptionPane.showMessageDialog(this, "Login successful!");
+        new StudentDashboardFrame(student).setVisible(true);
+        dispose();
+    }
+
+    private void returnToMain() {
+        new MainFrame().setVisible(true);
+        dispose();
     }
 }
