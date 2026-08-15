@@ -2,86 +2,72 @@ package ui;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class AdminLoginFrame extends JFrame {
     private static final String ADMIN_USERNAME = "admin";
     private static final String ADMIN_PASSWORD = "admin123";
 
     public AdminLoginFrame() {
-        setTitle("Admin Login");
-        setSize(350, 250);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);
+        UIStyles.prepareFrame(this, "CampusHire | Admin Login", 520, 430);
 
-        JPanel panel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
+        JPanel root = UIStyles.pagePanel();
+        JPanel card = UIStyles.card();
+        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
 
-        JLabel titleLabel = new JLabel("Admin Login");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.gridwidth = 2;
-        panel.add(titleLabel, gbc);
+        JLabel brand = new JLabel("EMPLOYER / ADMIN PORTAL");
+        brand.setFont(new Font("SansSerif", Font.BOLD, 13));
+        brand.setForeground(UIStyles.NAVY);
+        JLabel title = UIStyles.title("Manage campus hiring");
+        JLabel subtitle = UIStyles.subtitle("Sign in to post jobs, review applications and manage students.");
+        card.add(brand);
+        card.add(Box.createVerticalStrut(8));
+        card.add(title);
+        card.add(Box.createVerticalStrut(6));
+        card.add(subtitle);
+        card.add(Box.createVerticalStrut(24));
 
-        JLabel usernameLabel = new JLabel("Username:");
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.gridwidth = 1;
-        panel.add(usernameLabel, gbc);
+        card.add(UIStyles.label("Username"));
+        JTextField usernameField = UIStyles.field(24);
+        card.add(Box.createVerticalStrut(6));
+        card.add(usernameField);
+        card.add(Box.createVerticalStrut(15));
+        card.add(UIStyles.label("Password"));
+        JPasswordField passwordField = UIStyles.passwordField(24);
+        card.add(Box.createVerticalStrut(6));
+        card.add(passwordField);
+        card.add(Box.createVerticalStrut(22));
 
-        JTextField usernameField = new JTextField(15);
-        gbc.gridx = 1;
-        gbc.gridy = 1;
-        panel.add(usernameField, gbc);
+        JButton loginBtn = UIStyles.primaryButton("Sign In");
+        JButton backBtn = UIStyles.secondaryButton("Back");
+        JPanel actions = new JPanel(new GridLayout(1, 2, 10, 0));
+        actions.setOpaque(false);
+        actions.add(loginBtn);
+        actions.add(backBtn);
+        card.add(actions);
 
-        JLabel passwordLabel = new JLabel("Password:");
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        panel.add(passwordLabel, gbc);
-
-        JPasswordField passwordField = new JPasswordField(15);
-        gbc.gridx = 1;
-        gbc.gridy = 2;
-        panel.add(passwordField, gbc);
-
-        JButton loginBtn = new JButton("Login");
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        gbc.gridwidth = 2;
-        panel.add(loginBtn, gbc);
-
-        JButton backBtn = new JButton("Back to Main");
-        gbc.gridx = 0;
-        gbc.gridy = 4;
-        panel.add(backBtn, gbc);
-
-        loginBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String username = usernameField.getText();
-                String password = new String(passwordField.getPassword());
-
-                if (ADMIN_USERNAME.equals(username) && ADMIN_PASSWORD.equals(password)) {
-                    JOptionPane.showMessageDialog(AdminLoginFrame.this, "Login successful!");
-                    new AdminDashboardFrame().setVisible(true);
-                    dispose();
-                } else {
-                    JOptionPane.showMessageDialog(AdminLoginFrame.this, "Invalid credentials!", "Error", JOptionPane.ERROR_MESSAGE);
-                }
+        loginBtn.addActionListener(e -> {
+            String username = usernameField.getText().trim();
+            String password = new String(passwordField.getPassword());
+            if (username.isEmpty() || password.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please enter both username and password.", "Missing information", JOptionPane.WARNING_MESSAGE);
+                return;
             }
-        });
-
-        backBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new MainFrame().setVisible(true);
+            if (ADMIN_USERNAME.equals(username) && ADMIN_PASSWORD.equals(password)) {
+                new AdminDashboardFrame().setVisible(true);
                 dispose();
+            } else {
+                JOptionPane.showMessageDialog(this, "Invalid username or password.", "Sign-in failed", JOptionPane.ERROR_MESSAGE);
+                passwordField.setText("");
             }
         });
+        passwordField.addActionListener(e -> loginBtn.doClick());
+        backBtn.addActionListener(e -> {
+            new MainFrame().setVisible(true);
+            dispose();
+        });
 
-        add(panel);
+        root.add(card, BorderLayout.CENTER);
+        add(root);
+        SwingUtilities.invokeLater(() -> usernameField.requestFocusInWindow());
     }
 }
