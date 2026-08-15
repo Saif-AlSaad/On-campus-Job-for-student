@@ -35,7 +35,7 @@ public class AdminDashboardFrame extends JFrame {
         actions.add(actionCard("Manage Jobs", "Review open and closed positions and manage job listings.", "Manage Jobs", () -> new ViewJobsFrame(null, true).setVisible(true)));
         actions.add(actionCard("Applications", "Review applicants, inspect details and update application status.", "Review Applications", () -> new ViewApplicationsFrame(null, true).setVisible(true)));
         actions.add(actionCard("Students", "Manage registered student profiles and account information.", "Manage Students", () -> {
-            new ManageStudentFrame().setVisible(true);
+            new ManageStudentsFrame().setVisible(true);
             dispose();
         }));
 
